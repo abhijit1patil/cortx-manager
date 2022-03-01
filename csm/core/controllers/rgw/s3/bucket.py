@@ -14,26 +14,16 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
 import json
-from marshmallow import Schema, fields, ValidationError, validates_schema
+from marshmallow import fields, ValidationError
 from cortx.utils.log import Log
 from csm.common.errors import InvalidRequest
 from csm.common.permission_names import Resource, Action
 from csm.core.blogic import const
 from csm.core.controllers.view import CsmView, CsmAuth, CsmResponse
 from csm.core.controllers.validators import ValidationErrorFormatter
-from csm.core.controllers.rgw.s3.base import S3BaseView
+from csm.core.controllers.rgw.s3.base import S3BaseView, S3BaseSchema
 
-class S3BucketBaseSchema(Schema):
-
-    """Base Class for S3 Bucket Schema Validation."""
-    @validates_schema
-    def invalidate_empty_values(self, data, **kwargs):
-        """method invalidates the empty strings."""
-        for key, value in data.items():
-            if value is not None and not str(value).strip():
-                raise ValidationError(f"{key}: Can not be empty")
-
-class LinkBucketSchema(S3BucketBaseSchema):
+class LinkBucketSchema(S3BaseSchema):
 
     """
     S3 Bucket Link schema validation class.
@@ -42,7 +32,7 @@ class LinkBucketSchema(S3BucketBaseSchema):
     bucket = fields.Str(data_key=const.RGW_JSON_BUCKET, required=True)
     bucket_id = fields.Str(data_key=const.RGW_JSON_BUCKET_ID, missing=None)
 
-class UnlinkBucketSchema(S3BucketBaseSchema):
+class UnlinkBucketSchema(S3BaseSchema):
 
     """
     S3 Bucket Unlink schema validation class.
@@ -51,7 +41,7 @@ class UnlinkBucketSchema(S3BucketBaseSchema):
     bucket = fields.Str(data_key=const.RGW_JSON_BUCKET, required=True)
 
 
-class BucketSchema(S3BucketBaseSchema):
+class BucketSchema(S3BaseSchema):
 
     """
     S3 Bucket create schema validation class.
